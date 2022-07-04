@@ -1,0 +1,98 @@
+/*
+Copyright (c) 2022 alf
+Released under the MIT license
+https://opensource.org/licenses/mit-license.php
+*/
+
+// フォルダIDとテンプレートファイル名を定義（指定）
+const FOLDER_ID = 'スプレッドシートを保存したいフォルダIDを入力してください';    // 振り返りのスプレッドシートを保存したいフォルダのID
+const TEMPLATE_FILE_NAME = "template_classSelfFeedback"   // テンプレートファイルは2行目のフォルダ内に格納すること
+
+function sendSpredsheet(event) {
+  // フォームの回答結果の整理
+  const formResponses = event.response.getItemResponses();  // 回答結果を取得
+  const emailaddress = event.response.getRespondentEmail(); // Emailアドレスを取得
+  const studentNumber = formResponses[0].getResponse();     // 生徒番号
+  const content = formResponses[1].getResponse();           // 授業内容
+  const selfchecks = formResponses[2].getResponse();        // 自己評価
+  const actfeedback = formResponses[3].getResponse();       // 取り組みに対する振り返り
+  const contentfeedback = formResponses[4].getResponse();   // 授業内容に対する振り返り
+  const question = formResponses[5].getResponse();          // 質問
+  let files = [];
+  try {
+    files = formResponses[6].getResponse();           // アップロードファイル
+  } catch(e) {
+    files = new Array("");
+  }
+
+  // 操作フォルダーとファイル一覧の取得等
+  const folder = DriveApp.getFolderById(FOLDER_ID);   // 操作フォルダー
+  const filelist = folder.getFiles();   // 操作フォルダーに格納されているファイル一覧をIteratorオブジェクトとして取得
+  const fileName = `【振り返りシート】${studentNumber}`   // 振り返りシートの名前
+  let check = 0;    //  既にファイルが存在しているかのチェックフラグ
+
+  // 既にファイルが存在しているかの確認
+  while (filelist.hasNext()) {          // .hasNext()でファイルがまだ残っているかどうかチェック
+      const file = filelist.next();     // .next()で順番にファイルを取り出す
+      if(file.getName() === fileName){  // 既にファイルがあったならばチェックフラグを立てる
+        check = 1;
+        Logger.log("exist!");
+      }
+  }
+
+  // ファイルの作成
+  if(check === 0){    // ファイルがなければテンプレートファイルから複製してファイルを作成する
+    const templateFiles = DriveApp.getFolderById(FOLDER_ID).getFilesByName(TEMPLATE_FILE_NAME);   // テンプレートファイルをIteratorオブジェクトとして取得
+    const templateFile = templateFiles.next();   // .next()でIteratorオブジェクトからtemplateファイルを取得
+    templateFile.makeCopy(fileName, folder);    // templateファイルをコピー
+  }
+
+  // スプレッドシート情報の取得
+  const targetFiles = DriveApp.getFolderById(FOLDER_ID).getFilesByName(fileName);   // 操作するスプレッドシートをIteratorオブジェクトとして取得
+  const targetFile = targetFiles.next();  // .next()でIteratorオブジェクトからファイルを取得
+  const targetss = SpreadsheetApp.openById(targetFile.getId()); // .getIdでID名を指定してスプレッドシートとしてファイルを取得し直す
+  const targetsheet = targetss.getSheets()[0];  // １枚めのシートを取得
+
+  // スプレッドシートへの入力
+  const dataRange = targetsheet.getRange("B:B").getValues();  // B列の値を配列で取得
+  const lastRow = dataRange.filter(String).length;  // 空白の要素を除いた配列の長さを取得
+  const d = new Date();   // 現在時刻を取得
+  targetsheet.getRange(lastRow + 1, 2).setValue(`${d.getMonth() + 1}月${d.getDate()}日`);   // 日付を入力
+  targetsheet.getRange(lastRow + 1, 3).setValue(content);         // 授業内容を入力
+  targetsheet.getRange(lastRow + 1, 4).setValue(selfchecks[0]);   //  主体的な態度の評価を入力
+  targetsheet.getRange(lastRow + 1, 5).setValue(selfchecks[1]);   //  思考・判断・表現の評価を入力
+  targetsheet.getRange(lastRow + 1, 6).setValue(selfchecks[2]);   //  知識・技能の評価を入力
+  targetsheet.getRange(lastRow + 1, 7).setValue(actfeedback);     //  取り組みに対する振り返りを入力  
+  targetsheet.getRange(lastRow + 1, 8).setValue(contentfeedback); //  授業内容に対する振り返りを入力
+  targetsheet.getRange(lastRow + 1, 9).setValue(question);        //  質問内容を入力
+
+  if (files[0] != "") {
+    let fileLink = '';
+    let counter = 0;
+    files.forEach(fileId => {
+      counter++;
+      fileLink = `https://drive.google.com/file/d/${fileId}`;
+      targetsheet.getRange(lastRow + 1, 9 + counter).setValue(fileLink);  //  アップロードファイルのリンクを入力
+    });
+
+    // アップロードファイルの閲覧権限の付与（生徒用）
+    let file;
+    files.forEach(fileId => {
+      file = DriveApp.getFileById(fileId);
+      file.addViewer(emailaddress);
+    });
+  }
+
+  // スプレッドシートの閲覧権限の付与
+  let scheck = 0;   // 権限があるかのフラグ
+  const sviewers = targetFile.getViewers();    // 閲覧権限のアカウントを取得
+  sviewers.forEach(viewer => {   // 今回のアカウントに既にコメント権限が付与されているかチェック
+    if (viewer.getEmail() === emailaddress) {
+      scheck = 1;   // アカウントにコメント権限が付与されているならフラグを立てる
+    }
+  });
+  if (scheck === 0){    // アカウントが付与されていなければ付与
+    targetFile.addCommenter(emailaddress);
+  }
+
+}
