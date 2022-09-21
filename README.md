@@ -4,17 +4,17 @@ Google フォーム と Google スプレッドシート を Google Apps Script�
 
 ## Usage
 下記のページで動画の内容も含めた詳細な手順・コードを公開しています。
-https://alfnet.info/google02/
+　　https://alfnet.info/google02/
 
 なお、使い方の手順の概要は下記となります。
 1. 先生用のGoogleアカウントでログイン
 2. 次のURLにアクセスして Google フォーム を Google ドライブ に コピー
-小学校版： https://docs.google.com/forms/d/154C01y8okzbct63YAxtYEgFMZ-ygxEY6s2vhNirC9Y4/copy
-中学校版： https://docs.google.com/forms/d/1CYnf9kfbT6TM_rSMm-fA5WLKHQ7nvTQjAPSzAx7Qtfg/copy
-高校版： https://docs.google.com/forms/d/1qjL5s3XI-F2FNK0Bj944vOMYy6C9q9WCRx40YOkpBbQ/copy
+　　小学校版： https://docs.google.com/forms/d/154C01y8okzbct63YAxtYEgFMZ-ygxEY6s2vhNirC9Y4/copy
+　　中学校版： https://docs.google.com/forms/d/1CYnf9kfbT6TM_rSMm-fA5WLKHQ7nvTQjAPSzAx7Qtfg/copy
+　　高校版： https://docs.google.com/forms/d/1qjL5s3XI-F2FNK0Bj944vOMYy6C9q9WCRx40YOkpBbQ/copy
 3. 2でコピーした Google フォーム が開くので、「ファイルのアップロード先のフォルダが見つかりません」で「復元」をクリック
 4. 次のURLにアクセスして Google スプレッドシート のテンプレートを Google ドライブ に コピー
-https://docs.google.com/spreadsheets/d/13Wz0R-yiEA679nzoJFtEQVnPVOWgFHWoEctQ9CdAmIU/copy
+　　https://docs.google.com/spreadsheets/d/13Wz0R-yiEA679nzoJFtEQVnPVOWgFHWoEctQ9CdAmIU/copy
 5. 4でコピーしたファイルを右クリックして、「名前の変更」を選択し、冒頭の文字列である「コピー 〜 」を削除してファイル名を「template_classSelfFeedbackv2.0」にする
 6. スプレッドシートの保存フォルダを Google ドライブ 上に作成
 7. テンプレートを 6 で作成した保存フォルダに移動
@@ -28,7 +28,8 @@ https://docs.google.com/spreadsheets/d/13Wz0R-yiEA679nzoJFtEQVnPVOWgFHWoEctQ9CdA
 
 ### Instraction movie（説明動画）
 バージョン1　https://youtu.be/zJYqqVkh8vc
-バージョン2　https://youtu.be/KNCF0ltFr2Q
+　　バージョン2　https://youtu.be/KNCF0ltFr2Q
 
 ## License
 This software is released under the MIT License, see LICENSE.
+　　https://opensource.org/licenses/mit-license.php
