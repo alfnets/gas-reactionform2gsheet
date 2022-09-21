@@ -6,22 +6,23 @@ https://opensource.org/licenses/mit-license.php
 
 // フォルダIDとテンプレートファイル名を定義（指定）
 const FOLDER_ID = 'スプレッドシートを保存したいフォルダIDを入力してください';    // 振り返りのスプレッドシートを保存したいフォルダのID
-const TEMPLATE_FILE_NAME = "template_classSelfFeedback"   // テンプレートファイルは2行目のフォルダ内に格納すること
+const TEMPLATE_FILE_NAME = "template_classSelfFeedbackv2.0";   // テンプレートファイルは8行目のフォルダ内に格納すること
 
 function sendSpredsheet(event) {
   // フォームの回答結果の整理
   const formResponses = event.response.getItemResponses();  // 回答結果を取得
   const emailaddress = event.response.getRespondentEmail(); // Emailアドレスを取得
-  const studentNumber = formResponses[0].getResponse();     // 生徒番号
-  const content = formResponses[1].getResponse();           // 授業内容
-  const selfchecks = formResponses[2].getResponse();        // 自己評価
-  const actfeedback = formResponses[3].getResponse();       // 取り組みに対する振り返り
-  const contentfeedback = formResponses[4].getResponse();   // 授業内容に対する振り返り
-  const question = formResponses[5].getResponse();          // 質問
+  const studentNumber = formResponses[0].getResponse();     // 学籍番号
+  const classname = formResponses[1].getResponse();         // 授業名
+  const content = formResponses[2].getResponse();           // 授業内容
+  const selfchecks = formResponses[3].getResponse();        // 自己評価
+  const actfeedback = formResponses[4].getResponse();       // 取り組みに対する振り返り
+  const contentfeedback = formResponses[5].getResponse();   // 授業内容に対する振り返り
+  const question = formResponses[6].getResponse();          // 質問
   let files = [];
   try {
-    files = formResponses[6].getResponse();           // アップロードファイル
-  } catch(e) {
+    files = formResponses[7].getResponse();           // アップロードファイル
+  } catch (e) {
     files = new Array("");
   }
 
@@ -33,15 +34,15 @@ function sendSpredsheet(event) {
 
   // 既にファイルが存在しているかの確認
   while (filelist.hasNext()) {          // .hasNext()でファイルがまだ残っているかどうかチェック
-      const file = filelist.next();     // .next()で順番にファイルを取り出す
-      if(file.getName() === fileName){  // 既にファイルがあったならばチェックフラグを立てる
-        check = 1;
-        Logger.log("exist!");
-      }
+    const file = filelist.next();     // .next()で順番にファイルを取り出す
+    if (file.getName() === fileName) {  // 既にファイルがあったならばチェックフラグを立てる
+      check = 1;
+      Logger.log("exist!");
+    }
   }
 
   // ファイルの作成
-  if(check === 0){    // ファイルがなければテンプレートファイルから複製してファイルを作成する
+  if (check === 0) {    // ファイルがなければテンプレートファイルから複製してファイルを作成する
     const templateFiles = DriveApp.getFolderById(FOLDER_ID).getFilesByName(TEMPLATE_FILE_NAME);   // テンプレートファイルをIteratorオブジェクトとして取得
     const templateFile = templateFiles.next();   // .next()でIteratorオブジェクトからtemplateファイルを取得
     templateFile.makeCopy(fileName, folder);    // templateファイルをコピー
@@ -51,7 +52,22 @@ function sendSpredsheet(event) {
   const targetFiles = DriveApp.getFolderById(FOLDER_ID).getFilesByName(fileName);   // 操作するスプレッドシートをIteratorオブジェクトとして取得
   const targetFile = targetFiles.next();  // .next()でIteratorオブジェクトからファイルを取得
   const targetss = SpreadsheetApp.openById(targetFile.getId()); // .getIdでID名を指定してスプレッドシートとしてファイルを取得し直す
-  const targetsheet = targetss.getSheets()[0];  // １枚めのシートを取得
+  const targetsheets = targetss.getSheets();    // すべてのシートを取得
+
+  // 既に同じ授業名のシートが存在しているかの確認
+  const sheet_names = [];
+  targetsheets.forEach(sheet => {
+    sheet_names.push(sheet.getName());
+  });
+  if (sheet_names.includes(classname)) {  // 既に同じ授業名のシートが存在している場合
+    var targetsheet = targetss.getSheetByName(classname);  // 授業名のシートを取得    
+  } else {
+    const templatesheet = targetss.getSheetByName("template");  // テンプレートシートを取得
+    var targetsheet = templatesheet.copyTo(targetss);   // テンプレートシートをコピー
+    targetsheet.setName(classname);   // シート名を授業名に変更
+    targetsheet.activate();   // 新しいシートをアクティブにする
+    targetss.moveActiveSheet(1);   // 新しいシートを一番左に移動
+  }
 
   // スプレッドシートへの入力
   const dataRange = targetsheet.getRange("B:B").getValues();  // B列の値を配列で取得
@@ -76,12 +92,23 @@ function sendSpredsheet(event) {
     });
 
     // アップロードファイルの閲覧権限の付与（生徒用）
-    let file;
     files.forEach(fileId => {
-      file = DriveApp.getFileById(fileId);
-      file.addViewer(emailaddress);
+      Drive.Permissions.insert(
+        {
+          'role': 'reader', //権限タイプを選ぶ (owner, organizer, fileOrganizer, writer, reader)
+          'type': 'user', //アカウントタイプを選ぶ (user, group, domain, anyone)
+          'value': emailaddress
+        },
+        fileId,
+        {
+          'sendNotificationEmails': 'false' //true=通知ON, false=通知OFF
+        }
+      );
     });
   }
+
+  // 個別のスプレッドシートへのリンクを回答結果のスプレッドシートに追記
+  addIndividualSsLinkToAnswerSs(targetFile, event);
 
   // スプレッドシートの閲覧権限の付与
   let scheck = 0;   // 権限があるかのフラグ
@@ -91,8 +118,28 @@ function sendSpredsheet(event) {
       scheck = 1;   // アカウントにコメント権限が付与されているならフラグを立てる
     }
   });
-  if (scheck === 0){    // アカウントが付与されていなければ付与
+  if (scheck === 0) {    // アカウントが付与されていなければ付与
     targetFile.addCommenter(emailaddress);
   }
+}
 
+/* 個別のスプレッドシートへのリンクを回答結果のスプレッドシートに追記 */
+function addIndividualSsLinkToAnswerSs(targetFile, event) {
+  const downloadUrl = targetFile.getUrl();  // 個別のスプレッドシートのリンクを取得
+  const answerSheet = getSheet(event.source.getId());    // 回答シートを取得
+  const dataRange = answerSheet.getRange("C:C").getValues();  // C列の値を配列で取得
+  const lastRow = dataRange.filter(String).length;  // 空白の要素を除いた配列の長さを取得
+  const lastColumn = answerSheet.getRange(1, 1).getNextDataCell(SpreadsheetApp.Direction.NEXT).getColumn() + 1;
+  answerSheet.getRange(lastRow, lastColumn).setValue(downloadUrl);  // 個別のスプレッドシートのリンクを入力
+}
+
+/* スプレッドシートのIDを取得する */
+function getSheet(formId) {
+  const form = FormApp.openById(formId);    // フォームを取得（スクリプトエディタでDrive APIを追加しておく必要がある）
+  const answerSs = SpreadsheetApp.openById(form.getDestinationId());    // フォームとリンクしている回答スプレッドシートを取得
+  const formUrl = form.getEditUrl().replace('/edit', '');   // フォームのURL兼IDを取得
+  const destinationSheet = answerSs.getSheets().find(sheet =>   // 回答スプレッドシートの各シートにおいて、リンクしているフォームがformUrlと一致するシートを探す
+    sheet.getFormUrl()?.replace('/viewform', '') === formUrl);
+
+  return destinationSheet;
 }
