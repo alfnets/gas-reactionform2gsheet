@@ -12,7 +12,7 @@ https://alfnet.info/google02/
   - 小学校版： https://docs.google.com/forms/d/154C01y8okzbct63YAxtYEgFMZ-ygxEY6s2vhNirC9Y4/copy
   - 中学校版： https://docs.google.com/forms/d/1CYnf9kfbT6TM_rSMm-fA5WLKHQ7nvTQjAPSzAx7Qtfg/copy
   - 高校版： https://docs.google.com/forms/d/1qjL5s3XI-F2FNK0Bj944vOMYy6C9q9WCRx40YOkpBbQ/copy
-- light（アウトプットの入力項目がないバージョン）
+- light（自由記述を統合したバージョン）
   - 小学校版： https://docs.google.com/forms/d/1AtUrRoVDf9RqmVUcJwvnyZETrSHAzYMO-4o3aus_s9Q/copy
   - 中学校版： https://docs.google.com/forms/d/1jYz6PwXmXKTuE_fC05BPtPrQgGtQWzAq5sA60gbDJGg/copy
   - 高校版： https://docs.google.com/forms/d/1H11nunFdNsxkggvRLKliR0axCpJQD1GTsl6l-rq0fGc/copy
@@ -20,7 +20,7 @@ https://alfnet.info/google02/
 4. 次のURLにアクセスして Google スプレッドシート のテンプレートを Google ドライブ に コピー  
 - 通常
   - https://docs.google.com/spreadsheets/d/13Wz0R-yiEA679nzoJFtEQVnPVOWgFHWoEctQ9CdAmIU/copy
-- light（アウトプットの入力項目がないバージョン）
+- light（自由記述を統合したバージョン）
   - https://docs.google.com/spreadsheets/d/16sOeQLDRzIEqMphYXKvMHIemHAYoUkA2zu5ciRJxw_4/copy
 5. 4でコピーしたファイルを右クリックして、「名前の変更」を選択し、冒頭の文字列である「コピー 〜 」を削除してファイル名を「template_classSelfFeedbackv2.0」にする
 6. スプレッドシートの保存フォルダを Google ドライブ 上に作成
