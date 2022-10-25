@@ -9,9 +9,9 @@ const FOLDER_ID = 'スプレッドシートを保存したいフォルダIDを�
 const TEMPLATE_FILE_NAME = "template_classSelfFeedbackv2.0";   // テンプレートファイルは8行目のフォルダ内に格納すること
 
 function sendSpredsheet(event) {
+  const emailaddress = event.response.getRespondentEmail(); // Emailアドレスを取得
   // フォームの回答結果の整理
   const formResponses = event.response.getItemResponses();  // 回答結果を取得
-  const emailaddress = event.response.getRespondentEmail(); // Emailアドレスを取得
   const studentNumber = formResponses[0].getResponse();     // 学籍番号
   const classname = formResponses[1].getResponse();         // 授業名
   const content = formResponses[2].getResponse();           // 授業内容
@@ -41,7 +41,7 @@ function sendSpredsheet(event) {
     }
   }
 
-  // ファイルの作成
+  // スプレッドシートファイルの作成
   if (check === 0) {    // ファイルがなければテンプレートファイルから複製してファイルを作成する
     const templateFiles = DriveApp.getFolderById(FOLDER_ID).getFilesByName(TEMPLATE_FILE_NAME);   // テンプレートファイルをIteratorオブジェクトとして取得
     const templateFile = templateFiles.next();   // .next()でIteratorオブジェクトからtemplateファイルを取得
@@ -92,23 +92,27 @@ function sendSpredsheet(event) {
     });
 
     // アップロードファイルの閲覧権限の付与（生徒用）
-    files.forEach(fileId => {
-      Drive.Permissions.insert(
-        {
-          'role': 'reader', //権限タイプを選ぶ (owner, organizer, fileOrganizer, writer, reader)
-          'type': 'user', //アカウントタイプを選ぶ (user, group, domain, anyone)
-          'value': emailaddress
-        },
-        fileId,
-        {
-          'sendNotificationEmails': 'false' //true=通知ON, false=通知OFF
-        }
-      );
-    });
+    try {
+      files.forEach(fileId => {
+        Drive.Permissions.insert(
+          {
+            'role': 'reader', //権限タイプを選ぶ (owner, organizer, fileOrganizer, writer, reader)
+            'type': 'user', //アカウントタイプを選ぶ (user, group, domain, anyone)
+            'value': emailaddress
+          },
+          fileId,
+          {
+            'sendNotificationEmails': 'false' //true=通知ON, false=通知OFF
+          }
+        );
+      });
+    } catch (e) {
+      console.error('提出されたファイルに共有設定をすることができませんでした。')
+    }
   }
 
   // 個別のスプレッドシートへのリンクを回答結果のスプレッドシートに追記
-  addIndividualSsLinkToAnswerSs(targetFile, event);
+  addIndividualSsLinkToAnswerSs(targetFile, event, studentNumber);
 
   // スプレッドシートの閲覧権限の付与
   let scheck = 0;   // 権限があるかのフラグ
@@ -119,18 +123,30 @@ function sendSpredsheet(event) {
     }
   });
   if (scheck === 0) {    // アカウントが付与されていなければ付与
-    targetFile.addCommenter(emailaddress);
+    try {
+      targetFile.addCommenter(emailaddress);
+    } catch (e) {
+      const error_str = `${studentNumber} さんが入力したメールアドレス（${emailaddress}）は、共有を許可されていないなどの問題があります。入力に誤りがあるかなどの確認をしてください。なお、${studentNumber} さん個別の振り返りスプレッドシートに振り返り内容は転送されていますが、スプレッドシートが ${studentNumber} さんと共有されていない可能性があります。また、ファイルが提出されている場合には、提出されたファイルが${studentNumber}さんと共有設定されていません。提出されたファイルの共有設定を確認して、共有されていない場合には「閲覧者（コメント可）」で手動で共有してください。
+
+${studentNumber} さん個別の振り返りスプレッドシート： ${targetFile.getUrl()}
+`
+      console.error(error_str)
+      const exec_emailAddress = Session.getActiveUser().getUserLoginId();
+      sendMailWithOption(exec_emailAddress, studentNumber, error_str);
+    }
   }
 }
 
 /* 個別のスプレッドシートへのリンクを回答結果のスプレッドシートに追記 */
-function addIndividualSsLinkToAnswerSs(targetFile, event) {
-  const downloadUrl = targetFile.getUrl();  // 個別のスプレッドシートのリンクを取得
-  const answerSheet = getSheet(event.source.getId());    // 回答シートを取得
-  const dataRange = answerSheet.getRange("C:C").getValues();  // C列の値を配列で取得
-  const lastRow = dataRange.filter(String).length;  // 空白の要素を除いた配列の長さを取得
+function addIndividualSsLinkToAnswerSs(targetFile, event, studentNumber) {
+  const timeStamp = event.response.getTimestamp();            // フォームに送信したタイムスタンプを取得
+  const downloadUrl = targetFile.getUrl();                    // 個別のスプレッドシートのリンクを取得
+  const answerSheet = getSheet(event.source.getId());         // 回答シートを取得
+  const timeStamps = answerSheet.getRange("A:A").getValues();  // A列（タイムスタンプ）の値を配列で取得
+  const studentNumbers = answerSheet.getRange("C:C").getValues();  // C列（学籍番号）の値を配列で取得
+  const targetRow = getTargetRow(timeStamps, studentNumbers, timeStamp, studentNumber) // 回答を記録した行を取得
   const lastColumn = answerSheet.getRange(1, 1).getNextDataCell(SpreadsheetApp.Direction.NEXT).getColumn() + 1;
-  answerSheet.getRange(lastRow, lastColumn).setValue(downloadUrl);  // 個別のスプレッドシートのリンクを入力
+  answerSheet.getRange(targetRow, lastColumn).setValue(downloadUrl);  // 個別のスプレッドシートのリンクを入力
 }
 
 /* スプレッドシートのIDを取得する */
@@ -139,7 +155,24 @@ function getSheet(formId) {
   const answerSs = SpreadsheetApp.openById(form.getDestinationId());    // フォームとリンクしている回答スプレッドシートを取得
   const formUrl = form.getEditUrl().replace('/edit', '');   // フォームのURL兼IDを取得
   const destinationSheet = answerSs.getSheets().find(sheet =>   // 回答スプレッドシートの各シートにおいて、リンクしているフォームがformUrlと一致するシートを探す
-    sheet.getFormUrl()?.replace('/viewform', '') === formUrl);
-
+    sheet.getFormUrl()?.replace('/viewform', '') === formUrl
+  );
   return destinationSheet;
+}
+
+/* 回答した行を取得 */
+function getTargetRow(timeStamps, studentNumbers, timeStamp, studentNumber) {
+  for(var i = 1; i < timeStamps.length; i++){
+    if(timeStamps[i] + studentNumbers[i] === timeStamp + studentNumber){
+      return i + 1;
+    }
+  }
+}
+
+/* メールアドレスを間違えていたりして共有設定できなかった際のメール通知 */
+function sendMailWithOption(address, studentNumber, message) {
+  const subject = `【振り返りフォームエラー】${studentNumber}さんが入力したメールアドレスに問題がある`; // メールの件名
+  // const options = { /*オプションの内容*/ };
+  const body = `${message}`;
+  MailApp.sendEmail(address, subject, body);
 }
