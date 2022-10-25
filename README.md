@@ -1,5 +1,5 @@
 # ReactionForm-to-Spreadsheet-by-GAS
-Google フォーム と Google スプレッドシート を Google Apps Script（GAS）で連携して、授業の振り返りフォームを作成しました！これを使えば学習を可視化することができます！！なお、バージョン2.0より、複数授業対応、回答先のスプレッドシートと児童・生徒個別のスプレッドシートが連携されるようになりました（児童・生徒からの質問に回答・コメントしやすくなりました）。
+Google フォーム と Google スプレッドシート を Google Apps Script（GAS）で連携して、授業の振り返りフォームを作成しました！これを使えば学習を可視化することができます！！なお、バージョン2より、複数授業対応、回答先のスプレッドシートと児童・生徒個別のスプレッドシートが連携されるようになりました（児童・生徒からの質問に回答・コメントしやすくなりました）。
 
 ## Usage
 下記のページで動画の内容も含めた詳細な手順・コードを公開しています。  
@@ -9,13 +9,13 @@ https://alfnet.info/google02/
 1. 先生用のGoogleアカウントでログイン
 2. 次のURLにアクセスして Google フォーム を Google ドライブ に コピー
 - 通常
-  - 小学校版： https://docs.google.com/forms/d/154C01y8okzbct63YAxtYEgFMZ-ygxEY6s2vhNirC9Y4/copy
-  - 中学校版： https://docs.google.com/forms/d/1CYnf9kfbT6TM_rSMm-fA5WLKHQ7nvTQjAPSzAx7Qtfg/copy
-  - 高校版： https://docs.google.com/forms/d/1qjL5s3XI-F2FNK0Bj944vOMYy6C9q9WCRx40YOkpBbQ/copy
+  - 小学校版： https://docs.google.com/forms/d/1AdfkUYcNC75J4iWoajin3Z9W8TF9pfhnPon9ejO-qZ4/copy
+  - 中学校版： https://docs.google.com/forms/d/17JOF5X7OxEizd7xkuG67P_jyVhltzuXclnFMrtBo_C8/copy
+  - 高校版： https://docs.google.com/forms/d/1T_PynKl6pYbrsJKp3GmV8ZGAME1nlnRxmeYpDEj3ffg/copy
 - light（自由記述を統合したバージョン）
-  - 小学校版： https://docs.google.com/forms/d/1AtUrRoVDf9RqmVUcJwvnyZETrSHAzYMO-4o3aus_s9Q/copy
-  - 中学校版： https://docs.google.com/forms/d/1jYz6PwXmXKTuE_fC05BPtPrQgGtQWzAq5sA60gbDJGg/copy
-  - 高校版： https://docs.google.com/forms/d/1H11nunFdNsxkggvRLKliR0axCpJQD1GTsl6l-rq0fGc/copy
+  - 小学校版： https://docs.google.com/forms/d/17Voyuz4pXGabohwGCy3f8ZSR9l3_onFfi4X9UfdpYQo/copy
+  - 中学校版： https://docs.google.com/forms/d/1kakMlVNswAj_xdunjs7ORBlf8yM4yL99nNbk7hoetEE/copy
+  - 高校版： https://docs.google.com/forms/d/1M8_bX2dATApV8jMEPct9Y__RyGEn0pn3BviPhyrMw8o/copy
 3. 2でコピーした Google フォーム が開くので、「ファイルのアップロード先のフォルダが見つかりません」で「復元」をクリック
 4. 次のURLにアクセスして Google スプレッドシート のテンプレートを Google ドライブ に コピー  
 - 通常
