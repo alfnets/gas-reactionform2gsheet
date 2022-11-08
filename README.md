@@ -7,7 +7,7 @@ https://alfnet.info/google02/
 
 なお、使い方の手順の概要は下記となります。
 1. 先生用のGoogleアカウントでログイン
-2. 次のURLにアクセスして「コピーを作成」ボタンから Google フォーム を Google ドライブ に コピー（**※ ここで「Apps Script ファイルを表示」ボタンはクリックしないでください！**）
+2. 次のURLにアクセスして「コピーを作成」ボタンから Google フォーム を Google ドライブ に コピー（**※ ここで「Apps Script ファイルを表示」ボタンをクリックしないでください！**）
 - 通常
   - 小学校版： https://docs.google.com/forms/d/1AdfkUYcNC75J4iWoajin3Z9W8TF9pfhnPon9ejO-qZ4/copy
   - 中学校版： https://docs.google.com/forms/d/17JOF5X7OxEizd7xkuG67P_jyVhltzuXclnFMrtBo_C8/copy
