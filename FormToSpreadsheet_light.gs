@@ -2,17 +2,11 @@
 Copyright (c) 2022 alf
 Released under the MIT license
 https://opensource.org/licenses/mit-license.php
-
-**************************************************
- 振り返りフォームを使用する際には必ず公開されているURLから 
- 「コピーを作成」ボタンをクリックして振り返りフォームを  　 
- コピーして使用するようにしてください。                　
-**************************************************
 */
 
 // フォルダIDとテンプレートファイル名を定義（指定）
 const FOLDER_ID = 'スプレッドシートを保存したいフォルダIDを入力してください';    // 振り返りのスプレッドシートを保存したいフォルダのID
-const TEMPLATE_FILE_NAME = "template_classSelfFeedbackv2.0";   // テンプレートファイルは8行目のフォルダ内に格納すること
+const TEMPLATE_FILE_NAME = "template_classSelfFeedbackv2.0_light";   // テンプレートファイルは8行目のフォルダ内に格納すること
 
 function sendSpredsheet(event) {
   const emailaddress = event.response.getRespondentEmail(); // Emailアドレスを取得
@@ -22,12 +16,11 @@ function sendSpredsheet(event) {
   const classname = formResponses[1].getResponse();         // 授業名
   const content = formResponses[2].getResponse();           // 授業内容
   const selfchecks = formResponses[3].getResponse();        // 自己評価
-  const actfeedback = formResponses[4].getResponse();       // 取り組みに対する振り返り
-  const contentfeedback = formResponses[5].getResponse();   // 授業内容に対する振り返り
-  const question = formResponses[6].getResponse();          // 質問
+  const actfeedback = formResponses[4].getResponse();       // 振り返り（自由記述）
+  const question = formResponses[5].getResponse();          // 質問
   let files = [];
   try {
-    files = formResponses[7].getResponse();           // アップロードファイル
+    files = formResponses[6].getResponse();           // アップロードファイル
   } catch (e) {
     files = new Array("");
   }
@@ -84,9 +77,8 @@ function sendSpredsheet(event) {
   targetsheet.getRange(lastRow + 1, 4).setValue(selfchecks[0]);   //  主体的な態度の評価を入力
   targetsheet.getRange(lastRow + 1, 5).setValue(selfchecks[1]);   //  思考・判断・表現の評価を入力
   targetsheet.getRange(lastRow + 1, 6).setValue(selfchecks[2]);   //  知識・技能の評価を入力
-  targetsheet.getRange(lastRow + 1, 7).setValue(actfeedback);     //  取り組みに対する振り返りを入力  
-  targetsheet.getRange(lastRow + 1, 8).setValue(contentfeedback); //  授業内容に対する振り返りを入力
-  targetsheet.getRange(lastRow + 1, 9).setValue(question);        //  質問内容を入力
+  targetsheet.getRange(lastRow + 1, 7).setValue(actfeedback);     //  振り返り（自由記述）を入力  
+  targetsheet.getRange(lastRow + 1, 8).setValue(question);        //  質問内容を入力
 
   if (files[0] != "") {
     let fileLink = '';
@@ -94,7 +86,7 @@ function sendSpredsheet(event) {
     files.forEach(fileId => {
       counter++;
       fileLink = `https://drive.google.com/file/d/${fileId}`;
-      targetsheet.getRange(lastRow + 1, 9 + counter).setValue(fileLink);  //  アップロードファイルのリンクを入力
+      targetsheet.getRange(lastRow + 1, 8 + counter).setValue(fileLink);  //  アップロードファイルのリンクを入力
     });
 
     // アップロードファイルの閲覧権限の付与（生徒用）
