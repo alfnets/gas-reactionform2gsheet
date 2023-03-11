@@ -40,6 +40,9 @@ https://alfnet.info/google02/
 ## Limitation
 Google Wordspace の管理コンソールにおいて、「Drive SDK API 経由での Google ドライブへのアクセスをユーザーに許可する」の設定が OFF になっている場合には、本ツールを使用することはできません（デフォルトでは ON）。手順通り実施してもうまくいかない場合には、校内や職場のシステム管理者に確認してください。
 
+## Author
+あるふ(alf)
+
 ## License
 This software is released under the MIT License, see LICENSE.  
 https://opensource.org/licenses/mit-license.php
