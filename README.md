@@ -9,13 +9,13 @@ https://alfnet.info/google02/
 1. 先生用のGoogleアカウントでログイン
 2. 次のURLにアクセスして「コピーを作成」ボタンから Google フォーム を Google ドライブ に コピー（**※ ここで「Apps Script ファイルを表示」ボタンをクリックしないでください！**）
 - 通常
-  - 小学校版： https://docs.google.com/forms/d/1AdfkUYcNC75J4iWoajin3Z9W8TF9pfhnPon9ejO-qZ4/copy
-  - 中学校版： https://docs.google.com/forms/d/17JOF5X7OxEizd7xkuG67P_jyVhltzuXclnFMrtBo_C8/copy
-  - 高校版： https://docs.google.com/forms/d/1T_PynKl6pYbrsJKp3GmV8ZGAME1nlnRxmeYpDEj3ffg/copy
+  - 小学校版： https://docs.google.com/forms/d/1yP7oc3C2v37fURX8k2WbeWin4oIRzaU5lg4fTvhhlIs/copy
+  - 中学校版： https://docs.google.com/forms/d/15lvVAT9EUknLEPOiRz3lB0nqIRAam-Y28zrQnQdnIeA/copy
+  - 高校版： https://docs.google.com/forms/d/1bdT0HWe4GNz8t9Hun6t9A0nLJO2GNXwUsM2MAFLWLvY/copy
 - light（自由記述を統合したバージョン）
-  - 小学校版： https://docs.google.com/forms/d/17Voyuz4pXGabohwGCy3f8ZSR9l3_onFfi4X9UfdpYQo/copy
-  - 中学校版： https://docs.google.com/forms/d/1kakMlVNswAj_xdunjs7ORBlf8yM4yL99nNbk7hoetEE/copy
-  - 高校版： https://docs.google.com/forms/d/1M8_bX2dATApV8jMEPct9Y__RyGEn0pn3BviPhyrMw8o/copy
+  - 小学校版： https://docs.google.com/forms/d/1xWIJpRC4JGkntEYkZxYtR5pVUyiHZfghTn8MPzPWfE4/copy
+  - 中学校版： https://docs.google.com/forms/d/1xeLHs2fDEmqeWozTaal9dWI1neAtPL4vYoU5WtdJ5ak/copy
+  - 高校版： https://docs.google.com/forms/d/1hHWqR9khQrpfXf3ghl0D6r6zH2rNczaxi90zyQsYwbc/copy
 3. 2でコピーした Google フォーム が開くので、「ファイルのアップロード先のフォルダが見つかりません」で「復元」をクリック
 4. 次のURLにアクセスして Google スプレッドシート のテンプレートを Google ドライブ に コピー  
 - 通常
