@@ -60,7 +60,7 @@ function sendSpredsheet(event) {
   try {
     folder = DriveApp.getFolderById(FOLDER_ID);   // 操作フォルダー
   } catch (e) {
-    throw new Error(`フォルダーが見つかりませんでした。本プログラムで定義されているFOLDER_IDが正しいものか確認してください。もしくは、DriveAppを使ったツールがドメイン管理者（システム管理者）によって無効化されています。\n詳細: ${e.message}`)
+    throw new Error(`フォルダーが見つかりませんでした。本プログラムで定義されているFOLDER_IDが正しいものか確認してください。もしくは、DriveAppを使ったツールがドメイン管理者（システム管理者）によって無効化されています。\n詳細: ${e.message}`);
   }
   const filelist = folder.getFiles();   // 操作フォルダーに格納されているファイル一覧をIteratorオブジェクトとして取得
   const fileName = `【振り返りシート】${studentNumber}`   // 振り返りシートの名前
@@ -81,7 +81,7 @@ function sendSpredsheet(event) {
     try {
       templateFile = templateFiles.next();   // .next()でIteratorオブジェクトからtemplateファイルを取得
     } catch (e) {
-      throw new Error(`テンプレートファイルが見つかりませんでした。テンプレートファイルがFOLDER_IDのフォルダに保存されていることと、本プログラムで定義されているTEMPLATE_FILE_NAMEとテンプレートファイル名が一致していること、Excelファイルではなくスプレッドシートであることを確認してください。\n詳細: ${e.message}`)
+      throw new Error(`テンプレートファイルが見つかりませんでした。テンプレートファイルがFOLDER_IDのフォルダに保存されていることと、本プログラムで定義されているTEMPLATE_FILE_NAMEとテンプレートファイル名が一致していること、Excelファイルではなくスプレッドシートであることを確認してください。\n詳細: ${e.message}`);
     }
     templateFile.makeCopy(fileName, folder);    // templateファイルをコピー
   }
@@ -194,7 +194,7 @@ function getSheet(formId) {
   try {
     answerSs = SpreadsheetApp.openById(form.getDestinationId());    // フォームとリンクしている回答スプレッドシートを取得
   } catch (e) {
-    throw new Error(`フォームとリンクしている回答先スプレッドシートが見つかりませんでした。フォームの回答タブから回答先スプレッドシートを作成・もしくは既存のものを選択してください。\n詳細: ${e.message}`)
+    throw new Error(`フォームとリンクしている回答先スプレッドシートが見つかりませんでした。フォームの回答タブから回答先スプレッドシートを作成・もしくは既存のものを選択してください。\n詳細: ${e.message}`);
   }
   const formUrl = form.getEditUrl().replace('/edit', '');   // フォームのURL兼IDを取得
   const destinationSheet = answerSs.getSheets().find(sheet =>   // 回答スプレッドシートの各シートにおいて、リンクしているフォームがformUrlと一致するシートを探す

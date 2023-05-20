@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 alf
+Copyright (c) 2023 alf
 Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
@@ -15,9 +15,32 @@ const FOLDER_ID = 'スプレッドシートを保存したいフォルダIDを�
 const TEMPLATE_FILE_NAME = "template_classSelfFeedbackv2.0_light";   // テンプレートファイルは8行目のフォルダ内に格納すること
 
 function sendSpredsheet(event) {
-  const emailaddress = event.response.getRespondentEmail(); // Emailアドレスを取得
+  let retryCount = 0;
+  const maxRetryCount = 5;  // 最大リトライ回数
+  let successFlag = false;  // フォームからの送信データ取得の成功フラグ
+
+  // フォームからの送信データ取得
+  let emailaddress;
+  let formResponses;
+
+  Utilities.sleep(1000);    // 1秒待機
+  while (!successFlag && retryCount < maxRetryCount) {
+    try {
+      emailaddress = event.response.getRespondentEmail(); // Emailアドレスを取得
+      formResponses = event.response.getItemResponses();  // 回答結果を取得
+      successFlag = true;
+    } catch (e) {
+      console.error("リトライします: ", retryCount + 1 , "回目 (処理に失敗しました: ", e.message, ")");   // エラーメッセージをログに記録
+      Utilities.sleep(1000);    // 1秒待機
+      retryCount++;
+    }
+  }
+
+  if (!successFlag) {
+    throw new Error("フォームからの送信データ取得の最大リトライ回数を超えました。処理を終了します。");
+  }
+
   // フォームの回答結果の整理
-  const formResponses = event.response.getItemResponses();  // 回答結果を取得
   const studentNumber = formResponses[0].getResponse();     // 学籍番号
   const classname = formResponses[1].getResponse();         // 授業名
   const content = formResponses[2].getResponse();           // 授業内容
@@ -32,7 +55,12 @@ function sendSpredsheet(event) {
   }
 
   // 操作フォルダーとファイル一覧の取得等
-  const folder = DriveApp.getFolderById(FOLDER_ID);   // 操作フォルダー
+  let forder;
+  try {
+    folder = DriveApp.getFolderById(FOLDER_ID);   // 操作フォルダー
+  } catch (e) {
+    throw new Error(`フォルダーが見つかりませんでした。本プログラムで定義されているFOLDER_IDが正しいものか確認してください。もしくは、DriveAppを使ったツールがドメイン管理者（システム管理者）によって無効化されています。\n詳細: ${e.message}`);
+  }
   const filelist = folder.getFiles();   // 操作フォルダーに格納されているファイル一覧をIteratorオブジェクトとして取得
   const fileName = `【振り返りシート】${studentNumber}`   // 振り返りシートの名前
   let check = 0;    //  既にファイルが存在しているかのチェックフラグ
@@ -42,14 +70,18 @@ function sendSpredsheet(event) {
     const file = filelist.next();     // .next()で順番にファイルを取り出す
     if (file.getName() === fileName) {  // 既にファイルがあったならばチェックフラグを立てる
       check = 1;
-      Logger.log("exist!");
     }
   }
 
   // スプレッドシートファイルの作成
   if (check === 0) {    // ファイルがなければテンプレートファイルから複製してファイルを作成する
     const templateFiles = DriveApp.getFolderById(FOLDER_ID).getFilesByName(TEMPLATE_FILE_NAME);   // テンプレートファイルをIteratorオブジェクトとして取得
-    const templateFile = templateFiles.next();   // .next()でIteratorオブジェクトからtemplateファイルを取得
+    let templateFile;
+    try {
+      templateFile = templateFiles.next();   // .next()でIteratorオブジェクトからtemplateファイルを取得
+    } catch (e) {
+      throw new Error(`テンプレートファイルが見つかりませんでした。テンプレートファイルがFOLDER_IDのフォルダに保存されていることと、本プログラムで定義されているTEMPLATE_FILE_NAMEとテンプレートファイル名が一致していること、Excelファイルではなくスプレッドシートであることを確認してください。\n詳細: ${e.message}`);
+    }
     templateFile.makeCopy(fileName, folder);    // templateファイルをコピー
   }
 
@@ -130,7 +162,7 @@ function sendSpredsheet(event) {
     try {
       targetFile.addCommenter(emailaddress);
     } catch (e) {
-      const error_str = `${studentNumber} さんが入力したメールアドレス（${emailaddress}）は、共有を許可されていないなどの問題があります。入力に誤りがあるかなどの確認をしてください。なお、${studentNumber} さん個別の振り返りスプレッドシートに振り返り内容は転送されていますが、スプレッドシートが ${studentNumber} さんと共有されていない可能性があります。また、ファイルが提出されている場合には、提出されたファイルが${studentNumber}さんと共有設定されていません。提出されたファイルの共有設定を確認して、共有されていない場合には「閲覧者（コメント可）」で手動で共有してください。
+      const error_str = `${studentNumber} さんが入力したメールアドレス（${emailaddress}）は、共有を許可されていないなどの問題があります。入力に誤りがあるかなどの確認をしてください。なお、${studentNumber} さん個別の振り返りスプレッドシートに振り返り内容は転送されていますが、スプレッドシートが ${studentNumber} さんと共有されていない可能性があります。また、ファイルが提出されている場合には、提出されたファイルが${studentNumber} さんと共有設定されていません。提出されたファイルの共有設定を確認して、共有されていない場合には「閲覧者（コメント可）」で手動で共有してください。
 
 ${studentNumber} さん個別の振り返りスプレッドシート： ${targetFile.getUrl()}
 `
@@ -156,7 +188,12 @@ function addIndividualSsLinkToAnswerSs(targetFile, event, studentNumber) {
 /* スプレッドシートのIDを取得する */
 function getSheet(formId) {
   const form = FormApp.openById(formId);    // フォームを取得（スクリプトエディタでDrive APIを追加しておく必要がある）
-  const answerSs = SpreadsheetApp.openById(form.getDestinationId());    // フォームとリンクしている回答スプレッドシートを取得
+  let answerSs;
+  try {
+    answerSs = SpreadsheetApp.openById(form.getDestinationId());    // フォームとリンクしている回答スプレッドシートを取得
+  } catch (e) {
+    throw new Error(`フォームとリンクしている回答先スプレッドシートが見つかりませんでした。フォームの回答タブから回答先スプレッドシートを作成・もしくは既存のものを選択してください。\n詳細: ${e.message}`);
+  }
   const formUrl = form.getEditUrl().replace('/edit', '');   // フォームのURL兼IDを取得
   const destinationSheet = answerSs.getSheets().find(sheet =>   // 回答スプレッドシートの各シートにおいて、リンクしているフォームがformUrlと一致するシートを探す
     sheet.getFormUrl()?.replace('/viewform', '') === formUrl
