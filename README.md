@@ -1,4 +1,4 @@
-# ReactionForm-to-Spreadsheet-by-GAS
+# gas-reactionform2gsheet
 Google フォーム と Google スプレッドシート を Google Apps Script（GAS）で連携して、授業の振り返りフォームを作成しました！これを使えば学習を可視化することができます！！なお、バージョン2より、複数授業対応、回答先のスプレッドシートと児童・生徒個別のスプレッドシートが連携されるようになりました（児童・生徒からの質問に回答・コメントしやすくなりました）。
 
 ## Usage
