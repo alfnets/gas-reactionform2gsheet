@@ -54,6 +54,9 @@ function sendSpredsheet(event) {
   while (!successFlag && retryCount < maxRetryCount) {
     try {
       formId = event.source.getId();  // フォームのIDを取得
+      if (!formId) {
+        throw new Error("フォーム情報の取得に失敗しました。");
+      }
       successFlag = true;
     } catch (e) {
       console.error("リトライします: ", retryCount + 1 , "回目 (フォーム情報の取得に失敗しました: ", e.message, ")");   // エラーメッセージをログに記録
