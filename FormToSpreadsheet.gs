@@ -32,7 +32,7 @@ function sendSpredsheet(event) {
       emailaddress  = event.response.getRespondentEmail();  // Emailアドレスを取得
       formResponses = event.response.getItemResponses();    // 回答結果を取得
       timeStamp     = event.response.getTimestamp();        // フォームに送信したタイムスタンプを取得
-      if (emailaddress === "" || formResponses === "" || timeStamp === "" || emailaddress === null || formResponses === null || timeStamp === null) {
+      if (!emailaddress || !formResponses || !timeStamp ) {
         throw new Error("フォームからの送信データ取得に失敗しました。");
       }
       successFlag   = true;
