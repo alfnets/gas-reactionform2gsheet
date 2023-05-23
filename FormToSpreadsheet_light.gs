@@ -1,4 +1,8 @@
 /*
+gas-reactionform2gsheet_light
+Version 2.2.2
+2023/05/23
+
 Copyright (c) 2023 alf
 Released under the MIT license
 https://opensource.org/licenses/mit-license.php
@@ -15,29 +19,47 @@ const FOLDER_ID = 'スプレッドシートを保存したいフォルダIDを�
 const TEMPLATE_FILE_NAME = "template_classSelfFeedbackv2.0_light";   // テンプレートファイルは8行目のフォルダ内に格納すること
 
 function sendSpredsheet(event) {
-  let retryCount = 0;
   const maxRetryCount = 5;  // 最大リトライ回数
-  let successFlag = false;  // フォームからの送信データ取得の成功フラグ
+  let retryCount = 0;
+  let successFlag = false;  // 成功フラグ
 
   // フォームからの送信データ取得
   let emailaddress;
   let formResponses;
-
-  Utilities.sleep(1000);    // 1秒待機
+  let timeStamp;
   while (!successFlag && retryCount < maxRetryCount) {
     try {
-      emailaddress = event.response.getRespondentEmail(); // Emailアドレスを取得
-      formResponses = event.response.getItemResponses();  // 回答結果を取得
-      successFlag = true;
+      emailaddress  = event.response.getRespondentEmail();  // Emailアドレスを取得
+      formResponses = event.response.getItemResponses();    // 回答結果を取得
+      timeStamp     = event.response.getTimestamp();        // フォームに送信したタイムスタンプを取得
+      successFlag   = true;
     } catch (e) {
-      console.error("リトライします: ", retryCount + 1 , "回目 (処理に失敗しました: ", e.message, ")");   // エラーメッセージをログに記録
+      console.error("リトライします: ", retryCount + 1 , "回目 (フォームからの送信データ取得に失敗しました: ", e.message, ")");   // エラーメッセージをログに記録
       Utilities.sleep(1000);    // 1秒待機
       retryCount++;
     }
   }
-
   if (!successFlag) {
     throw new Error("フォームからの送信データ取得の最大リトライ回数を超えました。処理を終了します。");
+  }
+  
+  retryCount = 0;       // リトライ回数をリセット
+  successFlag = false;  // 成功フラグをリセット
+
+  // フォーム自体の情報を取得
+  let formId;
+  while (!successFlag && retryCount < maxRetryCount) {
+    try {
+      formId = event.source.getId();  // フォームのIDを取得
+      successFlag = true;
+    } catch (e) {
+      console.error("リトライします: ", retryCount + 1 , "回目 (フォーム情報の取得に失敗しました: ", e.message, ")");   // エラーメッセージをログに記録
+      Utilities.sleep(1000);    // 1秒待機
+      retryCount++;
+    }
+  }
+  if (!successFlag) {
+    throw new Error("フォーム情報の取得の最大リトライ回数を超えました。処理を終了します。");
   }
 
   // フォームの回答結果の整理
@@ -148,7 +170,7 @@ function sendSpredsheet(event) {
   }
 
   // 個別のスプレッドシートへのリンクを回答結果のスプレッドシートに追記
-  addIndividualSsLinkToAnswerSs(targetFile, event, studentNumber);
+  addIndividualSsLinkToAnswerSs(targetFile, formId, timeStamp, studentNumber);
 
   // スプレッドシートの閲覧権限の付与
   let scheck = 0;   // 権限があるかのフラグ
@@ -174,12 +196,11 @@ ${studentNumber} さん個別の振り返りスプレッドシート： ${target
 }
 
 /* 個別のスプレッドシートへのリンクを回答結果のスプレッドシートに追記 */
-function addIndividualSsLinkToAnswerSs(targetFile, event, studentNumber) {
-  const timeStamp = event.response.getTimestamp();            // フォームに送信したタイムスタンプを取得
-  const downloadUrl = targetFile.getUrl();                    // 個別のスプレッドシートのリンクを取得
-  const answerSheet = getSheet(event.source.getId());         // 回答シートを取得
-  const timeStamps = answerSheet.getRange("A:A").getValues();  // A列（タイムスタンプ）の値を配列で取得
-  const studentNumbers = answerSheet.getRange("C:C").getValues();  // C列（学籍番号）の値を配列で取得
+function addIndividualSsLinkToAnswerSs(targetFile, formId, timeStamp, studentNumber) {
+  const downloadUrl = targetFile.getUrl();                        // 個別のスプレッドシートのリンクを取得
+  const answerSheet = getSheet(formId);                           // 回答シートを取得
+  const timeStamps = answerSheet.getRange("A:A").getValues();     // A列（タイムスタンプ）の値を配列で取得
+  const studentNumbers = answerSheet.getRange("C:C").getValues(); // C列（学籍番号）の値を配列で取得
   const targetRow = getTargetRow(timeStamps, studentNumbers, timeStamp, studentNumber) // 回答を記録した行を取得
   const lastColumn = answerSheet.getRange(1, 1).getNextDataCell(SpreadsheetApp.Direction.NEXT).getColumn() + 1;
   answerSheet.getRange(targetRow, lastColumn).setValue(downloadUrl);  // 個別のスプレッドシートのリンクを入力
