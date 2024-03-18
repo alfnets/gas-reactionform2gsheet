@@ -16,7 +16,7 @@ https://opensource.org/licenses/mit-license.php
 
 // フォルダIDとテンプレートファイル名を定義（指定）
 const FOLDER_ID = 'スプレッドシートを保存したいフォルダIDを入力してください';    // 振り返りのスプレッドシートを保存したいフォルダのID
-const TEMPLATE_FILE_NAME = "template_classSelfFeedbackv2.0_light";   // テンプレートファイルは8行目のフォルダ内に格納すること
+const TEMPLATE_FILE_NAME = "template_classSelfFeedbackv2.0_light";   // テンプレートファイルは18行目のフォルダ内に格納すること
 
 const maxRetryCount = 5;    // 最大リトライ回数
 const retryInterval = 2000; // リトライ間隔（ミリ秒）
