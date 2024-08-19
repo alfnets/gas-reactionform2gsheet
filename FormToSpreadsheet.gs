@@ -1,9 +1,9 @@
 /*
 gas-reactionform2gsheet
-Version 2.2.3
-2023/05/30
+Version 2.2.4
+2023/08/19
 
-Copyright (c) 2023 alf
+Copyright (c) 2024 alf
 Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
@@ -44,7 +44,7 @@ function sendSpredsheet(event) {
   }
 
   // 操作フォルダーとファイル一覧の取得等
-  let forder;
+  let folder;
   try {
     folder = DriveApp.getFolderById(FOLDER_ID);   // 操作フォルダー
   } catch (e) {
