@@ -44,6 +44,6 @@ Google Wordspace の管理コンソールにおいて、「Drive SDK API 経由�
 あるふ(alf)
 
 ## License
-Copyright (c) 2023 あるふ (alf).<br>
+Copyright (c) 2023-2024 あるふ (alf).<br>
 This software is released under the MIT License, see LICENSE.  
 https://opensource.org/licenses/mit-license.php
