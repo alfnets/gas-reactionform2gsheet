@@ -1,7 +1,7 @@
 /*
 gas-reactionform2gsheet
-Version 2.2.4
-2023/08/19
+Version 2.3.0
+2023/10/08
 
 Copyright (c) 2024 alf
 Released under the MIT license
@@ -36,11 +36,19 @@ function sendSpredsheet(event) {
   const actfeedback = formResponses[4].getResponse();       // 取り組みに対する振り返り
   const contentfeedback = formResponses[5].getResponse();   // 授業内容に対する振り返り
   const question = formResponses[6].getResponse();          // 質問
+
+  // MEMO: カラム数は下記で算出
+  // 質問項目（レスポンス）数 + 自己評価数 + タイムスタンプ列 + メールアドレス列 - 1
+  // -1 している理由は、レスポンス数に自己評価である selfchecks が含まれているため
+  // files が空の場合はレスポンス数に含まれないため、その分 +1 する
+  let columnCount = formResponses.length + selfchecks.length + 1
+
   let files = [];
   try {
     files = formResponses[7].getResponse();   // アップロードファイル
   } catch (e) {
     files = new Array("");
+    columnCount += 1;
   }
 
   // 操作フォルダーとファイル一覧の取得等
@@ -160,16 +168,16 @@ ${studentNumber} さん個別の振り返りスプレッドシート： ${target
   }
 
   // 個別のスプレッドシートへのリンクを回答一覧のスプレッドシートに追記
-  addIndividualSsLinkToAnswerSs(targetFile, formId, timeStamp, studentNumber);
+  addIndividualSsLinkToAnswerSs(targetFile, formId, timeStamp, studentNumber, columnCount);
 }
 
 /* 個別のスプレッドシートへのリンクを回答一覧のスプレッドシートに追記 */
-function addIndividualSsLinkToAnswerSs(targetFile, formId, timeStamp, studentNumber) {
+function addIndividualSsLinkToAnswerSs(targetFile, formId, timeStamp, studentNumber, columnCount) {
   const downloadUrl = targetFile.getUrl();  // 個別のスプレッドシートのリンクを取得
   const answerSheet = retryWithLimit(() => getSheet(formId));
 
   let retryCount = 0;
-  let timeStamps, studentNumbers, targetRow, lastColumn;
+  let timeStamps, studentNumbers, targetRow;
   while (!targetRow && retryCount < maxRetryCount) {
     retryCount++;
     Utilities.sleep(retryInterval);
@@ -180,8 +188,8 @@ function addIndividualSsLinkToAnswerSs(targetFile, formId, timeStamp, studentNum
   if (!targetRow) {
     throw new Error(`回答一覧のスプレッドシートに ${studentNumber} さんの回答が見つからなかったため、個別のスプレッドシートへのリンクを回答一覧のスプレッドシートに追記できませんでした。`)
   } else {
-    lastColumn = answerSheet.getRange(1, 1).getNextDataCell(SpreadsheetApp.Direction.NEXT).getColumn() + 1;
-    answerSheet.getRange(targetRow, lastColumn).setValue(downloadUrl);  // 個別のスプレッドシートのリンクを入力
+    answerSheet.getRange(1, columnCount + 1).setValue("個別の振り返りスプレッドシート");  // ヘッダーを入力
+    answerSheet.getRange(targetRow, columnCount + 1).setValue(downloadUrl);  // 個別のスプレッドシートのリンクを入力
   }
 }
 
